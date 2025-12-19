@@ -2,41 +2,52 @@ import React from 'react';
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import axios from 'axios'; // 1. Import Axios
 
 function Contact() {
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onSubmit = async (data) => {
-    
-    console.log(data); 
-    
-  
-    toast.success("Thank you! Your message has been sent.");
-    
-    // 2. Redirect to Home after a short delay
-    setTimeout(() => {
-      navigate("/");
-    }, 2000);
+    const contactInfo = {
+      name: data.name,
+      email: data.email,
+      message: data.message,
+    };
+
+    try {
+      // 2. Post request to your backend port 4000
+      const res = await axios.post("http://localhost:4000/contact", contactInfo);
+      
+      if (res.data) {
+        toast.success("Thank you! Your message has been saved.");
+        
+        // Redirect to Home after a short delay
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Error: Message could not be saved.");
+    }
   };
 
   return (
     <div className='flex justify-center items-center h-screen bg-white dark:bg-slate-900'>
-    
       <form onSubmit={handleSubmit(onSubmit)} 
             className='flex flex-col justify-center relative items-center bg-slate-100 dark:bg-slate-800 w-[500px] p-10 rounded-lg shadow-md'>
+        
         <Link to="/">
-    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-bold text-white px-5 py-3 "
-    onClick={()=>document.getElementById("my_modal_3").close()}>
-      ✕</button>
-    </Link>
-        <h1 className='text-2xl font-bold text-black dark:text-white'>
-          Contact Us
-          </h1>
+          <button type="button" className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-bold dark:text-white px-5 py-3">
+            ✕
+          </button>
+        </Link>
+
+        <h1 className='text-2xl font-bold text-black dark:text-white'>Contact Us</h1>
         
         <div className='mt-4 space-y-2'>
-          <span className='text-black dark:text-white'>
-            Name</span><br/>
+          <span className='text-black dark:text-white'>Name</span><br/>
           <input 
             type="text" 
             placeholder='Enter your full name' 
